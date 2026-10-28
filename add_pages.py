@@ -1,0 +1,13 @@
+content = []
+content.append("name: Deploy to GitHub Pages\n\n")
+content.append("on:\n  push:\n    branches: [\"main\"]\n  workflow_dispatch:\n\n")
+content.append("permissions:\n  contents: read\n  pages: write\n  id-token: write\n\n")
+content.append("concurrency:\n  group: \"pages\"\n  cancel-in-progress: true\n\n")
+content.append("jobs:\n  deploy:\n    environment:\n      name: github-pages\n")
+content.append("      url: ${" + "{ steps.deployment.outputs.page_url }\n")
+content.append("    runs-on: ubuntu-latest\n    steps:\n")
+content.append("      - name: Checkout\n        uses: actions/checkout@v4\n")
+content.append("      - name: Setup Pages\n        uses: actions/configure-pages@v5\n")
+content.append("      - name: Upload artifact\n        uses: actions/upload-pages-artifact@v3\n        with:\n          path: \".\"\n")
+content.append("      - name: Deploy to GitHub Pages\n        id: deployment\n        uses: actions/deploy-pages@v4\n")
+open(r"D:\downloads\protoe\.github\workflows\pages.yml","w").write("".join(content))
