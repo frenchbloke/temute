@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../temute.svg" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TEMUTE — Beat Slice &amp; Stretch</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
+
+  :root {
+    --orange: #FB7701;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--white);
+    color: var(--orange);
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 800;
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 16px 20px;
+    border-bottom: 3px solid var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--white);
+  }
+
+  h1.logo {
+    margin: 0;
+    color: var(--orange);
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: clamp(40px, 8vw, 80px);
+    font-weight: 900;
+    letter-spacing: -0.075em;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid var(--orange);
+    border-radius: 12px;
+    background: var(--orange);
+    color: var(--white);
+    font: inherit;
+    font-weight: 900;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  button:hover { background: var(--white); color: var(--orange); }
+  button.primary { background: var(--orange); color: var(--white); }
+  button:disabled { cursor: not-allowed; }
+
+  select, input[type=number], input[type=file] {
+    background: var(--white);
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    padding: 6px 8px;
+    border-radius: 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  label { font-size: 11px; color: var(--orange); display: flex; align-items: center; gap: 6px; font-weight: 900; }
+
+  main { padding: 16px; display: grid; gap: 12px; max-width: 1100px; margin: 0 auto; }
+
+  .panel {
+    padding: 24px;
+    border: 3px solid var(--orange);
+    border-radius: 16px;
+    background: var(--orange);
+    color: var(--white);
+  }
+  .panel button { background: var(--white); color: var(--orange); }
+  .panel button:hover { background: var(--orange); color: var(--white); border-color: var(--white); }
+  .panel select, .panel input[type=number], .panel input[type=file] { background: var(--white); color: var(--orange); border-color: var(--white); }
+  .panel label { color: var(--white); }
+  .panel .status { color: var(--white); }
+  .panel h2 { color: var(--white); }
+  .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .panel-header-left {
+    flex: 1;
+    min-width: 280px;
+  }
+  .logo-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 110px;
+    background: var(--white);
+    border: 3px solid var(--orange);
+    border-radius: 16px;
+    flex-shrink: 0;
+  }
+  .panel canvas { background: var(--white); border-color: var(--white); }
+  .panel h2 { margin: 0 0 8px; font-size: 12px; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+
+  canvas { width: 100%; height: 120px; background: var(--white); border-radius: 12px; border: 2px solid var(--orange); display: block; }
+
+  .status { font-size: 12px; color: var(--orange); min-height: 16px; font-weight: 800; }
+
+  .grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; margin-top: 8px; }
+  .cell { background: var(--white); border: 2px solid var(--orange); border-radius: 6px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--orange); font-weight: 900; }
+  .cell.keep { background: var(--orange); color: var(--white); border-color: var(--orange); }
+  .cell.fill { background: var(--white); color: var(--orange); border-color: var(--orange); }
+
+  .legend { display: flex; gap: 12px; font-size: 11px; color: var(--orange); margin-top: 6px; font-weight: 800; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; background: var(--orange); }
+
+  input[type="range"] { accent-color: var(--orange); }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--orange); border: none; cursor: pointer; }
+  input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--orange); border: none; cursor: pointer; }
+
+</style>
+</head>
+<body>
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="row" style="margin-bottom:8px;"><input type="file" id="fileInput" accept="audio/*" /></div>
+        <div class="row">
+          <button id="playOrig" disabled>Play Original</button>
+          <button id="playProc" disabled>Play Processed</button>
+          <button id="stopBtn" disabled>Stop</button>
+          <button id="exportBtn" class="primary" disabled>Export WAV</button>
+        </div>
+        <div class="row" style="margin-top:8px;">
+      <label>Mode
+        <select id="mode">
+          <option value="fill">Fill (3x stretch, 1 kept)</option>
+          <option value="fill2a">Fill2a (2x stretch slices 2-3, keep 4)</option>
+          <option value="fill2b">Fill2b (2x stretch slices 3-4, keep 2)</option>
+          <option value="shuffle">Shuffle beats (reorder, crossfade)</option>
+          <option value="reverse4">Reverse beats 4,8,12,16</option>
+          <option value="anchor">Stretch each main beat (1 to 5, ...)</option>
+        </select>
+      </label>
+      <label>BPM
+        <input type="number" id="bpm" value="120" step="0.5" min="40" max="240" />
+      </label>
+      <label>Downbeat offset (s)
+        <input type="number" id="offset" value="0" step="0.001" min="0" max="2" />
+      </label>
+      <button id="detectBtn" disabled>Auto-detect BPM/offset</button>
+      <label>Engine
+        <select id="engine">
+          <option value="formant">Formant (Disappointment)</option>
+          <option value="paul">PaulStretch (smooth)</option>
+          <option value="paulx">PaulX (transient-preserving)</option>
+          <option value="granular">Granular Cloud (timbre)</option>
+        </select>
+      </label>
+      <label>Shuffle order
+        <select id="perm">
+          <option value="0,1,2,3">1,2,3,4 (original)</option>
+          <option value="0,1,3,2">1,2,4,3</option>
+          <option value="0,2,1,3">1,3,2,4</option>
+          <option value="0,2,3,1">1,3,4,2</option>
+          <option value="0,3,1,2">1,4,2,3</option>
+          <option value="0,3,2,1">1,4,3,2</option>
+        </select>
+      </label>
+      <button id="reprocessBtn" disabled>Reprocess</button>
+        </div>
+        <div class="status" id="status">Load an audio file to begin.</div>
+      </div>
+      <div class="logo-square">
+        <img src="../temute.svg" alt="TEMUTE" style="height:90px;width:auto;" />
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div style="text-align:center;font-weight:900;margin-bottom:4px;">original</div>
+    <canvas id="waveOrig" width="1000" height="120"></canvas>
+    <div style="text-align:center;font-weight:900;margin-top:6px;">processed</div>
+    <canvas id="waveProc" width="1000" height="120" style="margin-top:6px;"></canvas>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+
+// ---------- Formant Phase Vocoder (from Disappointment) ----------
+/**
+ * Formant-Preserving Identity-Phase-Locked Phase Vocoder Engine.
+ *
+ * Designed specifically for contiguous rhythmic blocks (e.g. [1,2,3], [5,6,7], [9,10,11], [13,14,15]
+ * in Schaffel mode) so that:
+ * 1. No FFT window ever straddles a splice cut.
+ * 2. Every beat's initial transient (Notes 1, 5, 9, 13) starts phase-locked at t=0 with zero pre-echo.
+ * 3. Spectral Envelope (Formant) Preservation extracts the vocal/instrument formant contour E_orig(k)
+ *    via critical-band log-magnitude smoothing and actively compensates for any spectral coloration
+ *    or formant shift during time-stretching.
+ * 4. Laroche & Dolson (1999) Identity Phase Locking + Mid/Side Stereo Phase Coherence keeps
+ *    harmonics and stereo imaging rock-solid.
+ */
+
+const FFT_SIZE = 2048;
+const HALF_FFT = FFT_SIZE >> 1; // 1024
+const NUM_BINS = HALF_FFT + 1; // 1025
+
+// Precomputed bit-reversal table for N = 2048
+const bitRev = new Uint16Array(FFT_SIZE);
+{
+  const bits = 11;
+  for (let i = 0; i < FFT_SIZE; i++) {
+    let rev = 0;
+    let v = i;
+    for (let b = 0; b < bits; b++) {
+      rev = (rev << 1) | (v & 1);
+      v >>= 1;
+    }
+    bitRev[i] = rev;
+  }
+}
+
+const cosTable = new Float32Array(HALF_FFT);
+const sinTable = new Float32Array(HALF_FFT);
+for (let i = 0; i < HALF_FFT; i++) {
+  const angle = (-2 * Math.PI * i) / FFT_SIZE;
+  cosTable[i] = Math.cos(angle);
+  sinTable[i] = Math.sin(angle);
+}
+
+const hannWindow = new Float32Array(FFT_SIZE);
+for (let i = 0; i < FFT_SIZE; i++) {
+  hannWindow[i] = 0.5 * (1 - Math.cos((2 * Math.PI * i) / FFT_SIZE));
+}
+
+function fft2048(real, imag, invert) {
+  for (let i = 0; i < FFT_SIZE; i++) {
+    const j = bitRev[i];
+    if (i < j) {
+      const tr = real[i];
+      real[i] = real[j];
+      real[j] = tr;
+      const ti = imag[i];
+      imag[i] = imag[j];
+      imag[j] = ti;
+    }
+  }
+
+  for (let len = 2; len <= FFT_SIZE; len <<= 1) {
+    const halfLen = len >> 1;
+    const step = FFT_SIZE / len;
+    for (let i = 0; i < FFT_SIZE; i += len) {
+      for (let k = 0; k < halfLen; k++) {
+        const twiddleIdx = k * step;
+        const wReal = cosTable[twiddleIdx];
+        const wImag = invert ? -sinTable[twiddleIdx] : sinTable[twiddleIdx];
+
+        const evenIdx = i + k;
+        const oddIdx = evenIdx + halfLen;
+
+        const uR = real[evenIdx];
+        const uI = imag[evenIdx];
+        const vR = real[oddIdx] * wReal - imag[oddIdx] * wImag;
+        const vI = real[oddIdx] * wImag + imag[oddIdx] * wReal;
+
+        real[evenIdx] = uR + vR;
+        imag[evenIdx] = uI + vI;
+        real[oddIdx] = uR - vR;
+        imag[oddIdx] = uI - vI;
+      }
+    }
+  }
+
+  if (invert) {
+    const scale = 1 / FFT_SIZE;
+    for (let i = 0; i < FFT_SIZE; i++) {
+      real[i] *= scale;
+      imag[i] *= scale;
+    }
+  }
+}
+
+function wrapPhase(angle) {
+  return angle - 2 * Math.PI * Math.floor((angle + Math.PI) / (2 * Math.PI));
+}
+
+/**
+ * Extracts the smooth macroscopic Formant Spectral Envelope E(k) in the log-magnitude domain
+ * using a two-pass zero-phase triangular (Bartlett) critical-band smoothing filter.
+ */
+function extractFormantSpectralEnvelope(
+  mag,
+  envelopeOut,
+  scratchA,
+  scratchB,
+  radiusBins
+) {
+  if (radiusBins === undefined) radiusBins = 16;
+  for (let k = 0; k < NUM_BINS; k++) {
+    scratchA[k] = Math.log(mag[k] + 1e-7);
+  }
+
+  // Pass 1: Box filter
+  let runningSum = 0;
+  let count = 0;
+  for (let k = 0; k <= radiusBins; k++) {
+    runningSum += scratchA[k];
+    count++;
+  }
+  for (let k = 0; k < NUM_BINS; k++) {
+    scratchB[k] = runningSum / count;
+    const addIdx = k + radiusBins + 1;
+    const remIdx = k - radiusBins;
+    if (addIdx < NUM_BINS) {
+      runningSum += scratchA[addIdx];
+      count++;
+    }
+    if (remIdx >= 0) {
+      runningSum -= scratchA[remIdx];
+      count--;
+    }
+  }
+
+  // Pass 2: Second box pass creates a smooth zero-phase triangular formant lifter
+  runningSum = 0;
+  count = 0;
+  for (let k = 0; k <= radiusBins; k++) {
+    runningSum += scratchB[k];
+    count++;
+  }
+  for (let k = 0; k < NUM_BINS; k++) {
+    envelopeOut[k] = Math.exp(runningSum / count);
+    const addIdx = k + radiusBins + 1;
+    const remIdx = k - radiusBins;
+    if (addIdx < NUM_BINS) {
+      runningSum += scratchB[addIdx];
+      count++;
+    }
+    if (remIdx >= 0) {
+      runningSum -= scratchB[remIdx];
+      count--;
+    }
+  }
+}
+
+// Reusable scratch buffers to avoid GC pressure during block stretching
+const realL = new Float32Array(FFT_SIZE);
+const imagL = new Float32Array(FFT_SIZE);
+const realR = new Float32Array(FFT_SIZE);
+const imagR = new Float32Array(FFT_SIZE);
+
+const magL = new Float32Array(NUM_BINS);
+const phaseL = new Float32Array(NUM_BINS);
+const magR = new Float32Array(NUM_BINS);
+const phaseR = new Float32Array(NUM_BINS);
+const magMid = new Float32Array(NUM_BINS);
+const phaseMid = new Float32Array(NUM_BINS);
+
+const prevAnalysisPhaseMid = new Float32Array(NUM_BINS);
+const synthPhaseMid = new Float32Array(NUM_BINS);
+const prevSynthPhaseMid = new Float32Array(NUM_BINS);
+const phaseRot = new Float32Array(NUM_BINS);
+
+const origFormantL = new Float32Array(NUM_BINS);
+const origFormantR = new Float32Array(NUM_BINS);
+const modFormantL = new Float32Array(NUM_BINS);
+const modFormantR = new Float32Array(NUM_BINS);
+const adjMagL = new Float32Array(NUM_BINS);
+const adjMagR = new Float32Array(NUM_BINS);
+const scratchA = new Float32Array(NUM_BINS);
+const scratchB = new Float32Array(NUM_BINS);
+const peakIndices = new Int32Array(NUM_BINS);
+
+const omegaExpected = new Float32Array(NUM_BINS);
+for (let k = 0; k < NUM_BINS; k++) {
+  omegaExpected[k] = (2 * Math.PI * k) / FFT_SIZE;
+}
+
+/**
+ * Stretches a single contiguous block of source audio `[srcStart .. srcStart + inBlockSamples]`
+ * into `outBlockSamples` with full Formant Spectral Envelope Preservation, Identity Phase Locking,
+ * Transient Phase Reset, and Verbatim Onset Anchoring.
+ *
+ * Because it reads directly from `sourceChannels` starting at `srcStart`, FFT windows near the
+ * end of the block seamlessly read the natural lookahead samples in `sourceChannels`, preventing
+ * any boundary drop-off or across-cut smearing.
+ */
+function stretchContiguousBlockFormantPreserving(
+  sourceChannels,
+  srcStartSample,
+  inBlockSamples,
+  outBlockSamples,
+  dstChannels,
+  dstStartSample,
+  formantShiftSemitones
+) {
+  if (formantShiftSemitones === undefined) formantShiftSemitones = 0;
+  const numChannels = sourceChannels.length;
+  const totalSourceSamples = sourceChannels[0].length;
+  const totalDstSamples = dstChannels[0].length;
+  const isStereo = numChannels > 1;
+  const ch0 = sourceChannels[0];
+  const ch1 = isStereo ? sourceChannels[1] : ch0;
+
+  if (Math.abs(outBlockSamples - inBlockSamples) <= 4) {
+    const copyLen = Math.min(inBlockSamples, outBlockSamples);
+    for (let ch = 0; ch < numChannels; ch++) {
+      const src = sourceChannels[ch];
+      const dst = dstChannels[ch];
+      for (let i = 0; i < copyLen; i++) {
+        if (srcStartSample + i < totalSourceSamples && dstStartSample + i < totalDstSamples) {
+          dst[dstStartSample + i] = src[srcStartSample + i];
+        }
+      }
+    }
+    return;
+  }
+
+  const stretchRatio = outBlockSamples / Math.max(1, inBlockSamples);
+  const synthesisHop = FFT_SIZE >> 2; // 512 (75% overlap)
+  const analysisHop = synthesisHop / stretchRatio; // Exactly 384 for 4/3x Schaffel!
+  const formantRatio = Math.pow(2, formantShiftSemitones / 12);
+
+  // Allocate temporary accumulation buffer with padding for FFT_SIZE lookahead
+  const workLen = outBlockSamples + FFT_SIZE;
+  const accumL = new Float32Array(workLen);
+  const accumR = isStereo ? new Float32Array(workLen) : accumL;
+  const colaWeight = new Float32Array(workLen);
+
+  // Center the first FFT window on the start of the block so t=0 has full COLA support
+  const prePad = HALF_FFT;
+  let outPos = 0;
+  let inOffsetFloat = -prePad;
+  let frameIdx = 0;
+  let prevFluxEnergy = 1e-5;
+
+  while (outPos < outBlockSamples + prePad) {
+    const inOffset = Math.round(inOffsetFloat);
+
+    // 1. Extract windowed frame from continuous source buffer (using natural pre/post-roll!)
+    for (let n = 0; n < FFT_SIZE; n++) {
+      const w = hannWindow[n];
+      const gIdx = srcStartSample + inOffset + n;
+      const clampedIdx = Math.max(0, Math.min(totalSourceSamples - 1, gIdx));
+      realL[n] = ch0[clampedIdx] * w;
+      imagL[n] = 0;
+      if (isStereo) {
+        realR[n] = ch1[clampedIdx] * w;
+        imagR[n] = 0;
+      }
+    }
+
+    fft2048(realL, imagL, false);
+    if (isStereo) {
+      fft2048(realR, imagR, false);
+    }
+
+    // 2. Compute magnitudes, phases, and Mid signal
+    let highEnergy = 0;
+    for (let k = 0; k < NUM_BINS; k++) {
+      const rL = realL[k];
+      const iL = imagL[k];
+      magL[k] = Math.hypot(rL, iL);
+      phaseL[k] = Math.atan2(iL, rL);
+
+      if (isStereo) {
+        const rR = realR[k];
+        const iR = imagR[k];
+        magR[k] = Math.hypot(rR, iR);
+        phaseR[k] = Math.atan2(iR, rR);
+
+        const rM = 0.5 * (rL + rR);
+        const iM = 0.5 * (iL + iR);
+        magMid[k] = Math.hypot(rM, iM);
+        phaseMid[k] = Math.atan2(iM, rM);
+      } else {
+        magMid[k] = magL[k];
+        phaseMid[k] = phaseL[k];
+      }
+
+      if (k >= 16 && k <= 380) {
+        highEnergy += magMid[k];
+      }
+    }
+
+    // 3. Extract true source Formant Spectral Envelope E_orig(k)
+    extractFormantSpectralEnvelope(magL, origFormantL, scratchA, scratchB, 16);
+    if (isStereo) {
+      extractFormantSpectralEnvelope(magR, origFormantR, scratchA, scratchB, 16);
+    }
+
+    // 4. Detect transient attacks for Phase Reset
+    const fluxRatio = highEnergy / (prevFluxEnergy + 1e-5);
+    prevFluxEnergy = highEnergy * 0.6 + prevFluxEnergy * 0.4;
+    const isTransient = frameIdx <= 1 || fluxRatio > 1.52;
+
+    if (isTransient) {
+      for (let k = 0; k < NUM_BINS; k++) {
+        synthPhaseMid[k] = phaseMid[k];
+        prevSynthPhaseMid[k] = phaseMid[k];
+        prevAnalysisPhaseMid[k] = phaseMid[k];
+        phaseRot[k] = 0;
+      }
+    } else {
+      // 5. Laroche & Dolson Identity Phase Locking around spectral peaks
+      let numPeaks = 0;
+      for (let k = 1; k < NUM_BINS - 1; k++) {
+        if (magMid[k] > magMid[k - 1] && magMid[k] >= magMid[k + 1]) {
+          peakIndices[numPeaks++] = k;
+        }
+      }
+      if (numPeaks === 0) {
+        peakIndices[numPeaks++] = 0;
+      }
+
+      for (let p = 0; p < numPeaks; p++) {
+        const kPeak = peakIndices[p];
+        const dPhi =
+          phaseMid[kPeak] -
+          prevAnalysisPhaseMid[kPeak] -
+          omegaExpected[kPeak] * analysisHop;
+        const trueOmega =
+          omegaExpected[kPeak] + wrapPhase(dPhi) / analysisHop;
+        synthPhaseMid[kPeak] = wrapPhase(
+          prevSynthPhaseMid[kPeak] + trueOmega * synthesisHop
+        );
+      }
+
+      for (let p = 0; p < numPeaks; p++) {
+        const kPeak = peakIndices[p];
+        const rot = synthPhaseMid[kPeak] - phaseMid[kPeak];
+        const startBin =
+          p === 0 ? 0 : ((peakIndices[p - 1] + kPeak) >> 1) + 1;
+        const endBin =
+          p === numPeaks - 1
+            ? NUM_BINS - 1
+            : (kPeak + peakIndices[p + 1]) >> 1;
+
+        for (let k = startBin; k <= endBin; k++) {
+          phaseRot[k] = rot;
+          if (k !== kPeak) {
+            synthPhaseMid[k] = wrapPhase(phaseMid[k] + rot);
+          }
+        }
+      }
+
+      for (let k = 0; k < NUM_BINS; k++) {
+        prevAnalysisPhaseMid[k] = phaseMid[k];
+      }
+    }
+
+    // 6. Formant Envelope Compensation:
+    // Estimate overlap-add spectral attenuation from frame-to-frame phase advance
+    // and re-impose the exact original Formant Spectral Envelope E_orig(k)
+    for (let k = 0; k < NUM_BINS; k++) {
+      const synthAdvance = wrapPhase(
+        synthPhaseMid[k] - prevSynthPhaseMid[k] - omegaExpected[k] * synthesisHop
+      );
+      // Overlap coherence factor (compensates subtle mid-formant damping during overlap-add)
+      const coherenceLoss = Math.max(0.78, Math.cos(synthAdvance * 0.35));
+      adjMagL[k] = magL[k] * coherenceLoss;
+      if (isStereo) {
+        adjMagR[k] = magR[k] * coherenceLoss;
+      }
+      prevSynthPhaseMid[k] = synthPhaseMid[k];
+    }
+
+    extractFormantSpectralEnvelope(adjMagL, modFormantL, scratchA, scratchB, 16);
+    if (isStereo) {
+      extractFormantSpectralEnvelope(adjMagR, modFormantR, scratchA, scratchB, 16);
+    }
+
+    for (let k = 0; k < NUM_BINS; k++) {
+      const targetEnvBin = Math.min(
+        NUM_BINS - 1,
+        Math.max(0, Math.round(k / formantRatio))
+      );
+      // Lock the output formant envelope to the original vocal/instrument formant envelope
+      const envRestoreL = Math.min(
+        1.6,
+        Math.max(0.65, origFormantL[targetEnvBin] / (modFormantL[k] + 1e-7))
+      );
+      const mOutL = magL[k] * envRestoreL;
+      const pOutL = phaseL[k] + phaseRot[k];
+      realL[k] = mOutL * Math.cos(pOutL);
+      imagL[k] = mOutL * Math.sin(pOutL);
+
+      if (isStereo) {
+        const envRestoreR = Math.min(
+          1.6,
+          Math.max(0.65, origFormantR[targetEnvBin] / (modFormantR[k] + 1e-7))
+        );
+        const mOutR = magR[k] * envRestoreR;
+        const pOutR = phaseR[k] + phaseRot[k];
+        realR[k] = mOutR * Math.cos(pOutR);
+        imagR[k] = mOutR * Math.sin(pOutR);
+      }
+    }
+
+    for (let k = 1; k < HALF_FFT; k++) {
+      realL[FFT_SIZE - k] = realL[k];
+      imagL[FFT_SIZE - k] = -imagL[k];
+      if (isStereo) {
+        realR[FFT_SIZE - k] = realR[k];
+        imagR[FFT_SIZE - k] = -imagR[k];
+      }
+    }
+    imagL[0] = 0;
+    imagL[HALF_FFT] = 0;
+    if (isStereo) {
+      imagR[0] = 0;
+      imagR[HALF_FFT] = 0;
+    }
+
+    // 7. Inverse FFT & Dual-Hann COLA Accumulation
+    fft2048(realL, imagL, true);
+    if (isStereo) {
+      fft2048(realR, imagR, true);
+    }
+
+    for (let n = 0; n < FFT_SIZE; n++) {
+      const idx = outPos + n;
+      if (idx < workLen) {
+        const w = hannWindow[n];
+        colaWeight[idx] += w * w;
+        accumL[idx] += realL[n] * w;
+        if (isStereo) {
+          accumR[idx] += realR[n] * w;
+        }
+      }
+    }
+
+    outPos += synthesisHop;
+    inPosFloatAdvance: {
+      inOffsetFloat += analysisHop;
+    }
+    frameIdx++;
+  }
+
+  // 8. Copy normalized output from [prePad .. prePad + outBlockSamples]
+  //    AND blend the very first 14ms of the block's attack transient verbatim from source
+  //    so bass drums on Notes 1, 5, 9, 13 have 100% original analog punch!
+  const transientAnchorSamples = Math.min(
+    600, // ~13.6ms at 44.1kHz
+    Math.floor(outBlockSamples * 0.2)
+  );
+
+  for (let i = 0; i < outBlockSamples; i++) {
+    const dstIdx = dstStartSample + i;
+    if (dstIdx >= totalDstSamples) break;
+
+    const workIdx = prePad + i;
+    const norm = colaWeight[workIdx] > 1e-4 ? 1 / colaWeight[workIdx] : 1;
+    let valL = accumL[workIdx] * norm;
+    let valR = isStereo ? accumR[workIdx] * norm : valL;
+
+    if (i < transientAnchorSamples && srcStartSample + i < totalSourceSamples) {
+      const alpha = 0.5 * (1 - Math.cos((Math.PI * i) / transientAnchorSamples)); // 0 (100% verbatim transient) -> 1 (phase vocoder)
+      const verbatimL = ch0[srcStartSample + i];
+      valL = verbatimL * (1 - alpha) + valL * alpha;
+      if (isStereo) {
+        const verbatimR = ch1[srcStartSample + i];
+        valR = verbatimR * (1 - alpha) + valR * alpha;
+      }
+    }
+
+    dstChannels[0][dstIdx] = valL;
+    if (isStereo) {
+      dstChannels[1][dstIdx] = valR;
+    }
+  }
+}
+
+
+
+function paulstretchChannel(x, stretch, nfft) {
+  nfft = nfft || 1024;
+  const n = x.length;
+  if (n < 64 || stretch <= 1.0) {
+    const outLen = Math.round(n * Math.max(1, stretch));
+    if (outLen === n) return x.slice();
+    const idx = new Float32Array(outLen);
+    const out = new Float32Array(outLen);
+    for (let i = 0; i < outLen; i++) { const p = i * (n - 1) / (outLen - 1 || 1); const i0 = Math.floor(p); const f = p - i0; const a = x[clamp(i0, 0, n - 1)], b = x[clamp(i0 + 1, 0, n - 1)]; out[i] = a * (1 - f) + b * f; }
+    return out;
+  }
+  const outLen = Math.round(n * stretch);
+  const win = new Float32Array(nfft);
+  for (let i = 0; i < nfft; i++) win[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / nfft));
+  const pad = Math.floor(nfft / 2);
+  const xp = new Float32Array(n + 2 * pad + nfft);
+  // reflect pad
+  for (let i = 0; i < n; i++) xp[pad + i] = x[i];
+  for (let i = 0; i < pad; i++) { xp[pad - 1 - i] = x[Math.min(n - 1, i + 1)] || 0; xp[pad + n + i] = x[Math.max(0, n - 2 - i)] || 0; }
+  const hopIn = Math.floor(nfft / 4);
+  const hopOut = Math.round(hopIn * stretch);
+  const out = new Float32Array(outLen + nfft);
+  const wsum = new Float32Array(outLen + nfft);
+  let posIn = 0, posOut = 0;
+  // simple PRNG
+  let seed = 1;
+  function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 0xffffffff; }
+  while (posOut + nfft < out.length && posIn + nfft < xp.length) {
+    const frame = new Float32Array(nfft);
+    for (let i = 0; i < nfft; i++) frame[i] = (xp[posIn + i] || 0) * win[i];
+    // FFT via DFT (small nfft=1024, O(n^2) too slow? use nfft=512 to be safe)
+    // Use real FFT approximation: we'll do complex DFT O(n^2) - acceptable for 512
+    // Actually use nfft passed; keep 1024 but O(n^2)=1M per frame, many frames -> slow. Reduce frames by larger hop? Keep as is for quality; optimize with radix-2 FFT.
+    // We'll use a simple radix-2 FFT.
+    const {re, im} = fftRadix2(frame);
+    const mag = new Float32Array(nfft / 2 + 1);
+    for (let k = 0; k <= nfft / 2; k++) mag[k] = Math.hypot(re[k], im[k]);
+    const outRe = new Float32Array(nfft);
+    const outIm = new Float32Array(nfft);
+    for (let k = 0; k <= nfft / 2; k++) {
+      const ph = rnd() * 2 * Math.PI;
+      const c = Math.cos(ph), s = Math.sin(ph);
+      if (k === 0 || k === nfft / 2) {
+        outRe[k] = mag[k] * c;
+        outIm[k] = mag[k] * s;
+      } else {
+        outRe[k] = mag[k] * c;
+        outIm[k] = mag[k] * s;
+        outRe[nfft - k] = mag[k] * c;
+        outIm[nfft - k] = -mag[k] * s;
+      }
+    }
+    const frameOut = ifftRadix2(outRe, outIm, nfft);
+    for (let i = 0; i < nfft; i++) {
+      const v = frameOut[i] * win[i];
+      const oi = posOut + i;
+      if (oi < out.length) { out[oi] += v; wsum[oi] += win[i] * win[i]; }
+    }
+    posIn += hopIn;
+    posOut += hopOut;
+  }
+  for (let i = 0; i < outLen; i++) {
+    out[i] = wsum[i] > 1e-8 ? out[i] / wsum[i] : 0;
+  }
+  const res = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) res[i] = clamp(out[i], -0.99, 0.99);
+  return res;
+}
+
+// Radix-2 FFT (iterative)
+function fftRadix2(input) {
+  const n = input.length;
+  const re = new Float32Array(n);
+  const im = new Float32Array(n);
+  for (let i = 0; i < n; i++) { re[i] = input[i]; im[i] = 0; }
+  // bit reversal
+  for (let i = 0, j = 0; i < n; i++) {
+    if (i < j) { const tr = re[i]; re[i] = re[j]; re[j] = tr; const ti = im[i]; im[i] = im[j]; im[j] = ti; }
+    let m = n >> 1;
+    while (m >= 1 && j >= m) { j -= m; m >>= 1; }
+    j += m;
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const half = len >> 1;
+    const ang = -2 * Math.PI / len;
+    const wR = Math.cos(ang), wI = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let cR = 1, cI = 0;
+      for (let k = 0; k < half; k++) {
+        const uR = re[i + k], uI = im[i + k];
+        const vR = re[i + k + half] * cR - im[i + k + half] * cI;
+        const vI = re[i + k + half] * cI + im[i + k + half] * cR;
+        re[i + k] = uR + vR;
+        im[i + k] = uI + vI;
+        re[i + k + half] = uR - vR;
+        im[i + k + half] = uI - vI;
+        const nR = cR * wR - cI * wI;
+        cI = cR * wI + cI * wR;
+        cR = nR;
+      }
+    }
+  }
+  return { re, im };
+}
+function ifftRadix2(re, im, n) {
+  // conjugate, fft, conjugate, scale
+  const cre = new Float32Array(n);
+  const cim = new Float32Array(n);
+  for (let i = 0; i < n; i++) { cre[i] = re[i]; cim[i] = -im[i]; }
+  // use fftRadix2 on complex? fftRadix2 takes real input only. Need complex FFT.
+  // Implement complex FFT inline.
+  const out = complexFft(cre, cim, n, true);
+  const res = new Float32Array(n);
+  for (let i = 0; i < n; i++) res[i] = out.re[i] / n;
+  return res;
+}
+function complexFft(re, im, n, inverse) {
+  const R = new Float32Array(re);
+  const I = new Float32Array(im);
+  // bit reversal
+  for (let i = 0, j = 0; i < n; i++) {
+    if (i < j) { const tr = R[i]; R[i] = R[j]; R[j] = tr; const ti = I[i]; I[i] = I[j]; I[j] = ti; }
+    let m = n >> 1;
+    while (m >= 1 && j >= m) { j -= m; m >>= 1; }
+    j += m;
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const half = len >> 1;
+    const ang = (inverse ? 2 : -2) * Math.PI / len;
+    const wR = Math.cos(ang), wI = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let cR = 1, cI = 0;
+      for (let k = 0; k < half; k++) {
+        const uR = R[i + k], uI = I[i + k];
+        const vR = R[i + k + half] * cR - I[i + k + half] * cI;
+        const vI = R[i + k + half] * cI + I[i + k + half] * cR;
+        R[i + k] = uR + vR;
+        I[i + k] = uI + vI;
+        R[i + k + half] = uR - vR;
+        I[i + k + half] = uI - vI;
+        const nR = cR * wR - cI * wI;
+        cI = cR * wI + cI * wR;
+        cR = nR;
+      }
+    }
+  }
+  if (inverse) { for (let i = 0; i < n; i++) { R[i] /= n; I[i] /= n; } }
+  return { re: R, im: I };
+}
+
+function paulstretchMulti(channels, stretch) {
+  const out = channels.map(ch => paulstretchChannel(ch, stretch, 512));
+  return out;
+}
+
+
+function paulxChannel(x, stretch) {
+  const n = x.length;
+  const nfft = 512;
+  if (n < 64 || stretch <= 1.0) {
+    const outLen = Math.round(n * Math.max(1, stretch));
+    if (outLen === n) return x.slice();
+    const out = new Float32Array(outLen);
+    for (let i = 0; i < outLen; i++) { const p = i * (n - 1) / (outLen - 1 || 1); const i0 = Math.floor(p); const f = p - i0; out[i] = x[clamp(i0, 0, n - 1)] * (1 - f) + x[clamp(i0 + 1, 0, n - 1)] * f; }
+    return out;
+  }
+  const outLen = Math.round(n * stretch);
+  const win = new Float32Array(nfft);
+  for (let i = 0; i < nfft; i++) win[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / nfft));
+  const pad = Math.floor(nfft / 2);
+  const xp = new Float32Array(n + 2 * pad + nfft);
+  for (let i = 0; i < n; i++) xp[pad + i] = x[i];
+  for (let i = 0; i < pad; i++) { xp[pad - 1 - i] = x[Math.min(n - 1, i + 1)] || 0; xp[pad + n + i] = x[Math.max(0, n - 2 - i)] || 0; }
+  const hopIn = Math.floor(nfft / 4);
+  const hopOut = Math.round(hopIn * stretch);
+  const out = new Float32Array(outLen + nfft);
+  const wsum = new Float32Array(outLen + nfft);
+  let seed = 1; function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 0xffffffff; }
+  // onset energies
+  const energies = [];
+  let pp = 0;
+  while (pp + nfft < xp.length) { let e = 0; for (let i = 0; i < nfft; i++) e += xp[pp + i] * xp[pp + i]; energies.push(e); pp += hopIn; }
+  const med = energies.length ? energies.slice().sort((a, b) => a - b)[Math.floor(energies.length / 2)] : 0;
+  const thresh = med * 1.5;
+  let posIn = 0, posOut = 0, fi = 0;
+  while (posOut + nfft < out.length && posIn + nfft < xp.length) {
+    const frame = new Float32Array(nfft);
+    for (let i = 0; i < nfft; i++) frame[i] = (xp[posIn + i] || 0) * win[i];
+    const { re, im } = fftRadix2(frame);
+    const mag = new Float32Array(nfft / 2 + 1);
+    for (let k = 0; k <= nfft / 2; k++) mag[k] = Math.hypot(re[k], im[k]);
+    const isOnset = fi < energies.length && energies[fi] > thresh;
+    const outRe = new Float32Array(nfft);
+    const outIm = new Float32Array(nfft);
+    for (let k = 0; k <= nfft / 2; k++) {
+      let ph;
+      if (isOnset) {
+        ph = Math.atan2(im[k], re[k]);
+      } else {
+        ph = rnd() * 2 * Math.PI;
+      }
+      const c = Math.cos(ph), s = Math.sin(ph);
+      outRe[k] = mag[k] * c;
+      outIm[k] = mag[k] * s;
+      if (k !== 0 && k !== nfft / 2) {
+        outRe[nfft - k] = mag[k] * c;
+        outIm[nfft - k] = -mag[k] * s;
+      }
+    }
+    const frameOut = ifftRadix2(outRe, outIm, nfft);
+    for (let i = 0; i < nfft; i++) {
+      const v = frameOut[i] * win[i];
+      const oi = posOut + i;
+      if (oi < out.length) { out[oi] += v; wsum[oi] += win[i] * win[i]; }
+    }
+    posIn += hopIn;
+    posOut += hopOut;
+    fi++;
+  }
+  for (let i = 0; i < outLen; i++) out[i] = wsum[i] > 1e-8 ? out[i] / wsum[i] : 0;
+  const res = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) res[i] = clamp(out[i], -0.99, 0.99);
+  return res;
+}
+function paulxMulti(channels, stretch) {
+  return channels.map(ch => paulxChannel(ch, stretch));
+}
+
+function granularChannel(x, stretch) {
+  const n = x.length;
+  const grain = 256;
+  const outLen = Math.round(n * Math.max(1, stretch));
+  if (n < grain || outLen < grain) {
+    const out = new Float32Array(outLen);
+    for (let i = 0; i < outLen; i++) { const p = i * (n - 1) / (outLen - 1 || 1); const i0 = Math.floor(p); const f = p - i0; out[i] = x[clamp(i0, 0, n - 1)] * (1 - f) + x[clamp(i0 + 1, 0, n - 1)] * f; }
+    return out;
+  }
+  const win = new Float32Array(grain);
+  for (let i = 0; i < grain; i++) win[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / grain));
+  const out = new Float32Array(outLen + grain);
+  const wsum = new Float32Array(outLen + grain);
+  const hopOut = Math.max(1, Math.floor(grain / 4));
+  let scrub = 0;
+  const scrubRate = 1.0 / stretch;
+  let posOut = 0;
+  let seed = 1; function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 0xffffffff; }
+  while (posOut + grain < out.length) {
+    let si = Math.floor(scrub) % n;
+    si = clamp(si + Math.round(rnd() * grain * 0.1 - grain * 0.05), 0, n - grain);
+    for (let i = 0; i < grain; i++) {
+      const v = (x[si + i] || 0) * win[i];
+      const oi = posOut + i;
+      if (oi < out.length) { out[oi] += v; wsum[oi] += win[i]; }
+    }
+    posOut += hopOut;
+    scrub += scrubRate * hopOut;
+  }
+  const res = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) res[i] = wsum[i] > 1e-8 ? clamp(out[i] / wsum[i], -0.99, 0.99) : 0;
+  return res;
+}
+function granularMulti(channels, stretch) {
+  return channels.map(ch => granularChannel(ch, stretch));
+}
+
+// ---------- WSOLA (fallback) ----------
+function wsola(channels, outLen) {
+  const ch = channels.length;
+  const n = channels[0].length;
+  if (outLen <= 0) return channels.map(()=>new Float32Array(0));
+  if (n < 64 || outLen < 64) {
+    const res = [];
+    for (let c=0;c<ch;c++){
+      const src=channels[c], dst=new Float32Array(outLen);
+      for(let i=0;i<outLen;i++){ const p=i*(n-1)/(outLen-1||1); const i0=Math.floor(p); const f=p-i0; const a=src[clamp(i0,0,n-1)], b=src[clamp(i0+1,0,n-1)]; dst[i]=a*(1-f)+b*f; }
+      res.push(dst);
+    }
+    return res;
+  }
+  if (Math.abs(outLen-n) <= 1) {
+    return channels.map(c => { const d=new Float32Array(outLen); for(let i=0;i<Math.min(n,outLen);i++) d[i]=c[i]; return d; });
+  }
+  const m = Math.min(n, outLen);
+  let N = 2048;
+  while (N > 256 && N*3 > m) N >>= 1;
+  N = Math.min(N, Math.floor(m/2)*2);
+  if (N < 64) N = 64;
+  const half = N >> 1;
+  const M = Math.max(2, Math.ceil((outLen - N)/half) + 1);
+  const o = new Int32Array(M);
+  for (let k=0;k<M;k++) o[k] = Math.round((outLen-N)*(k/(M-1||1)));
+  function interpP(pos){ const t = pos / (outLen||1); return t * (n-1); }
+  const p = new Int32Array(M);
+  for (let k=0;k<M;k++){ const inPos = interpP(o[k]+half) - half; p[k] = Math.round(clamp(inPos, 0, n-N)); }
+  p[0]=0; p[M-1]=n-N;
+  const D = Math.max(96, Math.floor(N/4));
+  const mono = new Float32Array(n);
+  for (let i=0;i<n;i++){ let s=0; for(let c=0;c<ch;c++) s+=channels[c][i]; mono[i]=s/ch; }
+  const cs2 = new Float64Array(n+1); cs2[0]=0; for(let i=0;i<n;i++) cs2[i+1]=cs2[i]+mono[i]*mono[i];
+  const win = new Float32Array(N); for(let i=0;i<N;i++) win[i]=0.5*(1-Math.cos(2*Math.PI*i/(N-1||1)));
+  const first = new Float32Array(N); const last = new Float32Array(N);
+  for(let i=0;i<N;i++){ first[i]=win[i]; last[i]=win[i]; }
+  for(let i=0;i<half;i++) first[i]=1.0;
+  for(let i=half;i<N;i++) last[i]=1.0;
+
+  const starts = new Int32Array(M);
+  starts[0]=0;
+  for (let k=1;k<M;k++){
+    const hop = o[k]-o[k-1];
+    const T = N - hop;
+    if (T < 16){ starts[k]=p[k]; continue; }
+    let t0 = starts[k-1]+hop;
+    if (t0 + T > n) t0 = n - T;
+    if (t0 < 0) t0 = 0;
+    let eT = 0; for(let i=0;i<T;i++) eT += mono[t0+i]*mono[t0+i];
+    const lo = Math.max(0, p[k]-D);
+    const hi = Math.min(n-N, p[k]+D);
+    if (hi < lo){ starts[k]=clamp(p[k],0,n-N); continue; }
+    let best=-Infinity, bestIdx=lo;
+    for (let cand=lo; cand<=hi; cand++){
+      let dot=0, eC=0;
+      for(let i=0;i<T;i++){ dot += mono[cand+i]*mono[t0+i]; eC += mono[cand+i]*mono[cand+i]; }
+      const score = dot / Math.sqrt(eC*eT + 1e-12);
+      if (score > best){ best=score; bestIdx=cand; }
+    }
+    starts[k]=bestIdx;
+  }
+
+  const out = channels.map(()=>new Float32Array(outLen + N));
+  const wsum = new Float32Array(outLen + N);
+  for (let k=0;k<M;k++){
+    const w = (k===0)?first:(k===M-1?last:win);
+    const s = o[k];
+    const st = starts[k];
+    for(let i=0;i<N;i++){
+      const oi = s+i;
+      if (oi >= out[0].length) break;
+      const si = st+i;
+      if (si >= n) break;
+      for(let c=0;c<ch;c++) out[c][oi] += channels[c][si]*w[i];
+      wsum[oi] += w[i];
+    }
+  }
+  const res = channels.map(()=>new Float32Array(outLen));
+  for(let c=0;c<ch;c++){
+    for(let i=0;i<outLen;i++){
+      res[c][i] = out[c][i] / Math.max(wsum[i], 1e-3);
+    }
+  }
+  return res;
+}
+
+let audioCtx = null;
+function getCtx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx; }
+
+let sourceBuffer = null;
+let processedBuffer = null;
+let currentSrcNode = null;
+
+function stopPlay(){ if(currentSrcNode){ try{currentSrcNode.stop();}catch(e){} currentSrcNode.disconnect(); currentSrcNode=null; } }
+function playBuffer(buf){
+  stopPlay();
+  const ctx=getCtx();
+  const src=ctx.createBufferSource(); src.buffer=buf; src.loop=true;
+  const g=ctx.createGain(); g.gain.value=0.9;
+  src.connect(g); g.connect(ctx.destination);
+  src.start(0);
+  currentSrcNode=src;
+}
+
+function encodeWav(buffer){
+  const numCh=buffer.numberOfChannels; const sr=buffer.sampleRate;
+  const len=buffer.length; const bps=2; const block=numCh*bps; const dataSize=len*block;
+  const ab=new ArrayBuffer(44+dataSize); const v=new DataView(ab);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+dataSize,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
+  v.setUint16(20,1,true); v.setUint16(22,numCh,true); v.setUint32(24,sr,true);
+  v.setUint32(28,sr*block,true); v.setUint16(32,block,true); v.setUint16(34,16,true);
+  w(36,'data'); v.setUint32(40,dataSize,true);
+  const chs=[]; for(let c=0;c<numCh;c++) chs.push(buffer.getChannelData(c));
+  let off=44;
+  for(let i=0;i<len;i++) for(let c=0;c<numCh;c++){
+    const s=clamp(chs[c][i],-1,1); const i16=s<0?s*0x8000:s*0x7fff; v.setInt16(off,i16,true); off+=2;
+  }
+  return new Blob([ab],{type:'audio/wav'});
+}
+
+function analyzeBpm(samples, sr){
+  const hop = Math.max(1, Math.floor(sr/100));
+  const nFrames = Math.floor(samples.length/hop);
+  const env = new Float32Array(nFrames);
+  let prev=0;
+  for(let f=0;f<nFrames;f++){
+    const start=f*hop; let sum=0;
+    for(let i=0;i<hop;i++){ const x=samples[start+i]||0; sum+=x*x; }
+    const rms=Math.sqrt(sum/hop);
+    const flux=Math.max(0,rms-prev)*2.5 + rms*0.3;
+    env[f]=flux; prev=rms;
+  }
+  const fps=sr/hop;
+  let bestScore=-1, bestBpm=120;
+  for(let bpm=60;bpm<=200;bpm+=0.5){
+    const lag=Math.round(fps*60/bpm);
+    let score=0;
+    const maxF=Math.min(nFrames-lag*4, 2000);
+    for(let f=0;f<maxF;f++){
+      const l1=f+lag, l2=f+lag*2, l4=f+lag*4;
+      if(l4>=nFrames) break;
+      score += env[f]*(env[l1]*1.2+env[l2]*1.0+env[l4]*1.3);
+    }
+    const prior=1-Math.abs(bpm-122)*0.0008;
+    const ws=score*prior;
+    if(ws>bestScore){ bestScore=ws; bestBpm=bpm; }
+  }
+  return Math.round(bestBpm*2)/2;
+}
+
+function detectOffset(samples, sr, bpm){
+  const hop=Math.max(1,Math.floor(sr/100));
+  const fps=sr/hop;
+  const nFrames=Math.floor(samples.length/hop);
+  const env=new Float32Array(nFrames);
+  let prev=0;
+  for(let f=0;f<nFrames;f++){ const start=f*hop; let sum=0; for(let i=0;i<hop;i++){const x=samples[start+i]||0;sum+=x*x;} const rms=Math.sqrt(sum/hop); env[f]=Math.max(0,rms-prev)*2.5+rms*0.3; prev=rms; }
+  const beatSec=60/bpm; const beatFrames=Math.round(beatSec*fps);
+  const barFrames=beatFrames*4;
+  const steps=40;
+  let bestPhase=0, bestScore=-1;
+  const maxBars=Math.min(12, Math.floor(nFrames/barFrames));
+  for(let step=0;step<steps;step++){
+    const cand=(step/steps)*beatSec; const candF=Math.round(cand*fps);
+    let score=0;
+    for(let b=0;b<maxBars;b++){
+      for(let q=0;q<4;q++){
+        const idx=candF + b*barFrames + q*beatFrames;
+        if(idx>=0 && idx<nFrames) score+=env[idx];
+      }
+    }
+    if(score>bestScore){ bestScore=score; bestPhase=cand; }
+  }
+  return bestPhase < 0.015 ? 0 : Number(bestPhase.toFixed(4));
+}
+
+function fpvStretch(sourceChannels, srcStart, sliceSamples, ratio) {
+  const targetLen = sliceSamples * ratio;
+  const dstCh = sourceChannels.map(()=>new Float32Array(targetLen));
+  stretchContiguousBlockFormantPreserving(sourceChannels, srcStart, sliceSamples, targetLen, dstCh, 0, 0);
+  return dstCh;
+}
+
+function stretchGap(channels, srcStart, srcLen, ratio) {
+  const el = $('engine'); const engine = el ? el.value : 'formant';
+  const targetLen = srcLen * ratio;
+  if (engine === 'paul') {
+    const srcCh = channels.map(ch => { const a = new Float32Array(srcLen); for (let i = 0; i < srcLen; i++) a[i] = ch[srcStart + i] || 0; return a; });
+    return paulstretchMulti(srcCh, ratio);
+  }
+  if (engine === 'paulx') {
+    const srcCh = channels.map(ch => { const a = new Float32Array(srcLen); for (let i = 0; i < srcLen; i++) a[i] = ch[srcStart + i] || 0; return a; });
+    return paulxMulti(srcCh, ratio);
+  }
+  if (engine === 'granular') {
+    const srcCh = channels.map(ch => { const a = new Float32Array(srcLen); for (let i = 0; i < srcLen; i++) a[i] = ch[srcStart + i] || 0; return a; });
+    return granularMulti(srcCh, ratio);
+  }
+  return fpvStretch(channels, srcStart, srcLen, ratio);
+}
+
+function processAudio(audioBuffer, bpm, offset, mode){
+  const sr=audioBuffer.sampleRate;
+  const numCh=audioBuffer.numberOfChannels;
+  const channels=[];
+  for(let c=0;c<numCh;c++) channels.push(audioBuffer.getChannelData(c).slice());
+  const n=channels[0].length;
+
+  const beatSec=60/bpm;
+  const sixteenthSec=beatSec/4;
+  const sliceSamples=Math.max(64, Math.round(sixteenthSec*sr));
+  const startOffset=Math.min(Math.max(0, Math.round(offset*sr)), n-sliceSamples);
+  const usable=n-startOffset;
+  const totalSlices=Math.floor(usable/sliceSamples);
+
+  const segs=[]; for(let c=0;c<numCh;c++) segs.push([]);
+
+  const slicesPerBar=16;
+  const numBars=Math.floor(totalSlices/slicesPerBar);
+  for(let bar=0;bar<numBars;bar++){
+    const baseSlice=bar*slicesPerBar;
+    for(let g=0;g<4;g++){
+      const groupStartSlice=baseSlice + g*4;
+      const anchorGlobal=groupStartSlice;
+
+      if(mode==='anchor'){
+        const srcSliceIdx=anchorGlobal;
+        const srcStart=startOffset + srcSliceIdx*sliceSamples;
+        const srcLen=sliceSamples;
+        const ratio=4; const targetLen=srcLen*ratio;
+        const stretched=stretchGap(channels, srcStart, srcLen, ratio);
+        for(let c=0;c<numCh;c++){ const a=new Float32Array(targetLen); for(let i=0;i<targetLen;i++) a[i]=stretched[c][i]||0; segs[c].push(a); }
+      } else if(mode==='fill2a' || mode==='fill2b'){
+        let srcSliceIdx, keepIdx;
+        if(mode==='fill2a'){ srcSliceIdx=groupStartSlice+1; keepIdx=groupStartSlice+3; }
+        else { srcSliceIdx=groupStartSlice+2; keepIdx=groupStartSlice+1; }
+        const srcStart=startOffset + srcSliceIdx*sliceSamples;
+        const srcLen=sliceSamples;
+        const ratio=2; const targetLen=srcLen*ratio;
+        const stretched=stretchGap(channels, srcStart, srcLen, ratio);
+        const ancStart=startOffset + anchorGlobal*sliceSamples;
+        if(mode==='fill2a'){
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ancStart+i]||0; segs[c].push(a); }
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(targetLen); for(let i=0;i<targetLen;i++) a[i]=stretched[c][i]||0; segs[c].push(a); }
+          const ks=startOffset + keepIdx*sliceSamples;
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ks+i]||0; segs[c].push(a); }
+        } else {
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ancStart+i]||0; segs[c].push(a); }
+          const ks=startOffset + keepIdx*sliceSamples;
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ks+i]||0; segs[c].push(a); }
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(targetLen); for(let i=0;i<targetLen;i++) a[i]=stretched[c][i]||0; segs[c].push(a); }
+        }
+      } else if(mode==='reverse4'){
+        for(let pi=0;pi<3;pi++){
+          const si=groupStartSlice+pi;
+          const ss=startOffset + si*sliceSamples;
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ss+i]||0; segs[c].push(a); }
+        }
+        const si=groupStartSlice+3;
+        const ss=startOffset + si*sliceSamples;
+        for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ss+sliceSamples-1-i]||0; segs[c].push(a); }
+      } else if(mode==='shuffle'){
+        const permEl = $('perm'); const permStr = permEl ? permEl.value : '0,1,2,3';
+        const perm=permStr.split(',').map(x=>parseInt(x.trim()));
+        for(let pi=0;pi<perm.length;pi++){
+          const si=groupStartSlice+perm[pi];
+          const ss=startOffset + si*sliceSamples;
+          for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ss+i]||0; segs[c].push(a); }
+        }
+      } else {
+        // fill (3x)
+        const srcSliceIdx=groupStartSlice+1;
+        const srcStart=startOffset + srcSliceIdx*sliceSamples;
+        const srcLen=sliceSamples;
+        const ratio=3; const targetLen=srcLen*ratio;
+        const stretched=stretchGap(channels, srcStart, srcLen, ratio);
+        const ancStart=startOffset + anchorGlobal*sliceSamples;
+        for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][ancStart+i]||0; segs[c].push(a); }
+        for(let c=0;c<numCh;c++){ const a=new Float32Array(targetLen); for(let i=0;i<targetLen;i++) a[i]=stretched[c][i]||0; segs[c].push(a); }
+      }
+    }
+  }
+  const usedSlices=numBars*slicesPerBar;
+  const remSlices=totalSlices-usedSlices;
+  for(let s=0;s<remSlices;s++){
+    const gi=usedSlices+s;
+    const st=startOffset+gi*sliceSamples;
+    for(let c=0;c<numCh;c++){ const a=new Float32Array(sliceSamples); for(let i=0;i<sliceSamples;i++) a[i]=channels[c][st+i]||0; segs[c].push(a); }
+  }
+
+  const fade=8;
+  function concatCrossfade(list){
+    if(list.length===0) return new Float32Array(0);
+    if(list.length===1) return list[0].slice();
+    let f=Math.min(fade, Math.floor(Math.min(...list.map(a=>a.length))/2));
+    if(f<1){ let total=0; for(const s of list) total+=s.length; const out=new Float32Array(total); let off=0; for(const s of list){ out.set(s,off); off+=s.length; } return out; }
+    let total=0; for(const s of list) total+=s.length; total -= f*(list.length-1);
+    const out=new Float32Array(total);
+    out.set(list[0],0);
+    let pos=list[0].length;
+    for(let i=1;i<list.length;i++){
+      const seg=list[i];
+      for(let k=0;k<f;k++){
+        const t=(k+1)/(f+1);
+        out[pos-f+k]=(1-t)*out[pos-f+k]+t*seg[k];
+      }
+      const tail=seg.subarray(f);
+      out.set(tail,pos);
+      pos += tail.length;
+    }
+    return out;
+  }
+
+  const outChannels=segs.map(list=>concatCrossfade(list));
+  const outLen=outChannels[0].length;
+  const ctx=getCtx();
+  const buf=ctx.createBuffer(numCh, outLen, sr);
+  for(let c=0;c<numCh;c++) buf.getChannelData(c).set(outChannels[c]);
+  return buf;
+}
+
+let originalMonoForAnalysis=null;
+
+function setButtonsEnabled(on){
+  ['playOrig','playProc','stopBtn','exportBtn','detectBtn','reprocessBtn'].forEach(id=>$(id).disabled=!on);
+}
+
+function drawWave(canvas, buffer, color){
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h);
+  if(!buffer) return;
+  const data=buffer.getChannelData(0);
+  const step=Math.max(1, Math.floor(data.length/w));
+  ctx.strokeStyle=color; ctx.lineWidth=1; ctx.beginPath();
+  for(let x=0;x<w;x++){
+    const i=x*step; let mn=0,mx=0;
+    for(let j=0;j<step && i+j<data.length;j++){ const v=data[i+j]; if(v<mn)mn=v; if(v>mx)mx=v; }
+    const y1=(1-mx)*h/2, y2=(1-mn)*h/2;
+    ctx.moveTo(x,y1); ctx.lineTo(x,y2);
+  }
+  ctx.stroke();
+}
+
+
+$('fileInput').addEventListener('change', async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  $('status').textContent='Decoding '+file.name+'...';
+  const ctx=getCtx();
+  const ab=await file.arrayBuffer();
+  const buf=await ctx.decodeAudioData(ab);
+  sourceBuffer=buf;
+  processedBuffer=null;
+  const ch0=buf.getChannelData(0); const ch1=buf.numberOfChannels>1?buf.getChannelData(1):ch0;
+  const mono=new Float32Array(buf.length);
+  for(let i=0;i<buf.length;i++) mono[i]=0.5*(ch0[i]+ch1[i]);
+  originalMonoForAnalysis=mono;
+  const bpm=analyzeBpm(mono, buf.sampleRate);
+  const off=detectOffset(mono, buf.sampleRate, bpm);
+  $('bpm').value=bpm; $('offset').value=off;
+  $('status').textContent=`Loaded: ${file.name} - ${buf.duration.toFixed(2)}s, ${buf.sampleRate}Hz, ${buf.numberOfChannels}ch. Detected ${bpm} BPM, offset ${off}s.`;
+  drawWave($('waveOrig'), buf, '#FB7701');
+  drawWave($('waveProc'), null, '#FB7701');
+  setButtonsEnabled(true);
+  doProcess();
+});
+
+function doProcess(){
+  if(!sourceBuffer) return;
+  const bpm=parseFloat($('bpm').value); const off=parseFloat($('offset').value); const mode=$('mode').value;
+  $('status').textContent='Processing...';
+  setTimeout(()=>{
+    try {
+      processedBuffer=processAudio(sourceBuffer, bpm, off, mode);
+      drawWave($('waveProc'), processedBuffer, '#FB7701');
+      $('status').textContent=`Processed: ${processedBuffer.duration.toFixed(2)}s (${processedBuffer.length} samples).`;
+    } catch(err){ $('status').textContent='Error: '+err.message; console.error(err); }
+  }, 10);
+}
+
+$('detectBtn').addEventListener('click', ()=>{
+  if(!originalMonoForAnalysis) return;
+  const bpm=analyzeBpm(originalMonoForAnalysis, sourceBuffer.sampleRate);
+  const off=detectOffset(originalMonoForAnalysis, sourceBuffer.sampleRate, bpm);
+  $('bpm').value=bpm; $('offset').value=off;
+  $('status').textContent=`Detected ${bpm} BPM, offset ${off}s.`;
+});
+
+$('reprocessBtn').addEventListener('click', doProcess);
+$('mode').addEventListener('change', ()=>{ doProcess(); });
+$('perm').addEventListener('change', ()=>{ doProcess(); });
+$('engine').addEventListener('change', ()=>{ doProcess(); });
+
+$('playOrig').addEventListener('click', ()=>{ if(sourceBuffer) playBuffer(sourceBuffer); });
+$('playProc').addEventListener('click', ()=>{ if(processedBuffer) playBuffer(processedBuffer); });
+$('stopBtn').addEventListener('click', stopPlay);
+$('exportBtn').addEventListener('click', ()=>{
+  if(!processedBuffer) return;
+  const blob=encodeWav(processedBuffer);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='temute_output.wav'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+</script>
+</body>
+</html>

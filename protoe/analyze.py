@@ -1,0 +1,37 @@
+"""Audio analysis helpers: BPM + downbeat detection."""
+import numpy as np
+from .dsp import analyse, estimate_period
+
+
+def detect_bpm_and_offset(samples, sr):
+    mono = samples.mean(axis=0) if samples.ndim == 2 else np.asarray(samples).ravel()
+    mono = mono.astype(np.float64)
+    peak = np.abs(mono).max()
+    if peak > 0:
+        mono = mono / peak
+
+    env, low = analyse(mono.astype(np.float32), sr, hop=64, n_fft=1024, n_bands=40)
+    fps = sr / 64.0
+    period_frames = estimate_period(env, fps, bpm_lo=60.0, bpm_hi=200.0, prior=120.0)
+    bpm = 60.0 * fps / period_frames
+
+    beat_sec = 60.0 / bpm
+
+    steps = 40
+    best_phase = 0.0
+    best_score = -1.0
+    max_bars = min(16, int((len(mono) / sr) / (beat_sec * 4)))
+    for step in range(steps):
+        cand = (step / steps) * beat_sec
+        score = 0.0
+        for b in range(max_bars):
+            for beat_idx in range(4):
+                t = cand + b * beat_sec * 4 + beat_idx * beat_sec
+                idx = int(t * fps)
+                if 0 <= idx < len(low):
+                    score += float(low[idx])
+        if score > best_score:
+            best_score = score
+            best_phase = cand
+    offset = 0.0 if best_phase < 0.015 else float(round(best_phase, 4))
+    return float(round(bpm, 2)), offset
